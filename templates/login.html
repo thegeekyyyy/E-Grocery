@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Login {% endblock %}</title>
+
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='static\css\style.css') }}">
+
+    <style>
+      *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body{
+        background-image: url("/static/bg.jpg");
+        background-size: cover;
+      }
+      .row {
+        margin: 50px;
+        background: rgba(0, 0, 0, 0.1);
+        /* background: rgba(228, 242, 244, 0.4); */
+        border-radius: 10px;
+        position: relative; /* Add this to the row to establish a positioning context */
+        overflow: hidden; /* Hide any overflowing content */
+        display: flex; /* Use flexbox to align the image within the row */
+        align-items: center; /* Center the image vertically */
+      }
+      .row::before {
+        content: "";
+        background-size: cover;
+        background-position: center center;
+        width: 50%; /* Set the width you want for the image */
+        height: 100%; /* Match the height of the row */
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+      }
+      img{
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+      }
+      .btn1{
+        border: none;
+        outline: none;
+        height: 50px;
+        width: 100%;
+        background-color: black;
+        color: white;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .btn1:hover{
+        background: white;
+        border: 1px solid;
+        color: black;
+      }
+    </style>
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash alert alert-{{ message[0] }} alert-dismissible" role="alert">
+                {{ message[1] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+  <section class="form my-4 mx-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-5">
+          <img src="static\image.avif" class="img-fluid" alt="">
+        </div>
+        <div class="col-lg-7 px-5 pt-5">
+          <form action="/login" method="POST">
+            <div class="form-row">
+              <div class="col-lg-7">
+                <h2 class="fs-1 fw-bold text-center">E-Grocery Store</h2>
+                <p class="fs-4 fw-bold text-center">Welcome to the login page</p>
+              </div>
+              <div class="col-lg-7">
+                <input class="form-control form-control-lg my-3" id="username" type="text" name ="username" placeholder="Enter your Username">
+              </div>
+              <div class="col-lg-7">
+                <input class="form-control form-control-lg my-3" id="password" type="password" name = "password" placeholder="Enter your Password">
+              </div>
+              <div class="col-lg-7">
+                <select class="form-control form-control-lg" id="userrole" name="userrole">
+                  <option value="0">Select User Role</option>
+                  <option value="Manager">Manager</option>
+                  <option value="User">User</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-lg-7">
+                <button type="submit" class="btn1 mt-3 mb-5">Login</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-lg-7">
+                <p class="fs-4 fw-bold text-center">New User?<a href="{{ url_for('register') }}" class="btn btn-link btn-block fs-5">SignUp</a></p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+<script 
+    type="text/javascript" src = "{{ url_for('static', filename='static\js\style.js') }}">
+</script>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} User's Dashboard {% endblock %}</title>
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='static\css\style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .card-header .left {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .card-header .right {
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .btn1{
+        border: none;
+        outline: none;
+        height: 50px;
+        width: 100%;
+        background-color: black;
+        color: white;
+        border-radius: 4px;
+        font-weight: bold;
+        }
+        .btn1:hover{
+        background: white;
+        border: 1px solid;
+        color: black;
+        }
+        .search-container {
+        display: flex;
+        align-items: center;
+        }
+        .search-container .form-control {
+        margin-right: 5px; /* Adjust the spacing between input and button as needed */
+        }
+    </style>
+</head>
+<body>
+    <!--NavBar-->
+    <nav class = "navbar navbar-dark navbar-expand-sm" style="background-image: url('/static/bg.jpg'); background-size: cover;">
+        <span class="navbar-brand mb-0 h1 fs-2 text-black">{{ username }}'s Dashboard</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button> 
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <!-- <form class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query">
+            </form> -->
+            <form class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}" method="GET">
+                <div class="search-container">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </div>
+            </form>
+            
+            <ul class="navbar-nav">
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('cart', user_id=user_id) }}" class="nav-link text-dark">
+                        My Cart | 
+                    </a>
+                </li>
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('order', user_id=user_id) }}" class="nav-link text-dark">
+                        My Orders | 
+                    </a>
+                </li>
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('logout') }}" class="nav-link text-dark">
+                        Logout 
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+    <!-- Flash message -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash alert alert-{{ message[0] }} alert-dismissible" role="alert">
+                {{ message[1] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <!-- Body -->
+    <!--Card-->
+        {% for category in existing_categories %}
+        <div class = "card-group">
+            <div class="card" style="background: rgba(228, 242, 244, 0.2); margin-top: 50px;margin-left: 50px;margin-right: 50px;">
+            <h5 class="card-header text-dark align-content-center" style="padding-left: 20px; background-image: url('/static/bg.jpg'); background-size: cover;">{{ category.categoryname }}</h5>
+            <div class="card-body text-center">
+                <div class="row  row-cols-1 row-cols-md-3 g-4">
+                    {% for product in category.products %}
+                
+                    <div class="col">
+                    <div class="card" style="background: rgba(228, 242, 244, 0.2);">
+                    <div class="card-header text-dark" style="background-image: url('/static/bg.jpg'); background-size: cover;">
+                        <span class="left">{{ product.productname }}</span>
+                        <span class="right">{{ product.price|int }}/{{ product.unit }}</span>
+                    </div>
+                    <div class="card-body" style="padding-bottom: 50px;">
+                        <div class="text-center">
+                            <div class="">
+                                <!-- Out of Stock button -->
+                                {% if product.quantity == 0 %}
+                                    <button class="btn btn-outline-dark" style="margin-left: 20px;" disabled>
+                                        <i class="fas fa-cart-plus"></i> Out of Stock
+                                    </button>
+                                {% else %}
+                                <!-- Add to Cart Button -->
+                                    <button class="btn btn-outline-dark" style="margin-left: 20px;" data-bs-toggle="modal" data-bs-target="#buyproductmodal{{ product.id }}">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                
+
+                <!--Buy Product Modal -->
+                <div class="modal fade" id="buyproductmodal{{ product.id }}" tabindex="-1" aria-labelledby="buyproductmodalLabel{{ product.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: rgba(0, 0, 0, 0.3); margin-top: 70px;">
+                            <div class="modal-header">
+                                <div class="modal-title text-white" id="buyproductmodalLabel">
+                                    <span>{{ product.productname }} - </span>
+                                    <span>{{ category.categoryname }}</span>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/user_dashboard" method="POST" id="productForm">
+                                    <div class="mb-3">
+                                        <h5 class="text-white" id="availability" name="availability">Availability : In Stock</h5>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productquantity{{ product.id }}" class="form-label text-white">Quantity :</label>
+                                        <input type="text" class="form-control form-control-lg" id="productquantity{{ product.id }}" name="productquantity" oninput="calculateTotal('{{ product.id }}')" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productprice{{ product.id }}" class="form-label text-white">Price :</label>
+                                        <input type="hidden" name="productprice" id="productprice{{ product.id }}" value="{{ product.price|int }}">
+                                        <h5 class="form-control form-control-lg">{{ product.price|int }} </h5>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalprice{{ product.id }}" class="form-label text-white">Total :</label>
+                                        <input type="number" class="form-control form-control-lg" id="totalprice{{ product.id }}" name="totalprice" readonly>
+                                    </div>
+                                    <input type="hidden" name="product_id" id="product_id" value="{{product.id}}">
+                                    <input type="hidden" name="user_id" id="user_id" value="{{ user_id }}">
+                                    <input type="hidden" name="available_quantity" id="available_quantity{{ product.id }}" value="{{ product.quantity }}">
+                                    <button type="submit" class="btn1">Buy</button>
+                                </form>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+                {% endfor %}   
+            </div>      
+            <br><br>
+            </div>
+        </diV> 
+        </div>
+        {% endfor %}
+    
+
+    <!-- Javascript -->    
+    <script>
+        function calculateTotal(productId) {
+            // Get the quantity and price values
+            let quantity = parseInt(document.getElementById('productquantity' + productId).value);
+            let price = parseInt(document.getElementById('productprice' + productId).value);
+    
+            // Calculate the total price
+            let total = quantity * price;
+    
+            // Update the total price in the input field
+            document.getElementById('totalprice' + productId).value = total;
+        }
+    </script>
+    
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+    <script type="text/javascript" src = "{{ url_for('static', filename='static\js\style.js') }}"></script>
+</body>
+</html>

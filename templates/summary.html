@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Summary {% endblock %}</title>
+
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='static\css\style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .btn1{
+        border: none;
+        outline: none;
+        height: 50px;
+        width: 100%;
+        background-color: none;
+        border-radius: 12px;
+        font-weight: bold;
+        }
+        .btn1:hover{
+        background: white;
+        border: 1px solid;
+        color: black;
+        }
+        /* canvas {
+        width: 400px;
+        height: 300px;
+        aspect-ratio: unset !important;
+        } */
+        .chart-canvas {
+            width: 400px;
+            height: 300px;
+            aspect-ratio: unset !important;
+        }
+
+    </style>
+
+</head>
+<body>
+    <!--NavBar-->
+    <nav class = "navbar navbar-dark navbar-expand-sm" style="background-image: url('/static/bg.jpg'); background-size: cover;">
+        <span class="navbar-brand mb-0 h1 fs-2 text-black">Summary</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button> 
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            
+            <ul class="navbar-nav">
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('export') }}" type="submit" class="btn btn1">
+                        Export Data
+                    </a>
+                </li>
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('manager_dashboard') }}" class="nav-link text-dark">
+                        |  Home 
+                    </a>
+                </li>
+                <li class="nav-item active fs-4">
+                    <a href="{{ url_for('logout') }}" class="nav-link text-dark">
+                        |  Logout 
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+    <br>
+    
+    <div class="charts d-flex flex-column">
+        <div class="container" style="width: 800px; height: 400px">
+            <h3>Category-wise Product sold:</h3>
+            <canvas id="productsold"></canvas>
+        </div>
+        <br><br>
+        <div class="container" style="width: 800px; height: 400px">
+            <h3>Top selling products:</h3>
+            <canvas id="topsellingproducts"></canvas>
+        </div>
+    </div>
+
+    
+    <script>
+    const productSold = document.getElementById('productsold');
+    const topSellingProducts = document.getElementById('topsellingproducts');
+    const options = {
+        responsive: true
+    };
+
+    const dataFromServer = {{ kwargs|tojson|safe }};
+
+    createChart(productSold, dataFromServer.product_sold, 'Category-wise Product sold');
+    createChart(topSellingProducts, dataFromServer.top_selling_products, 'Top selling products');
+    
+    
+    function createChart(id, data, label) {
+        console.log("Creating Chart with Data:", data);  // Log the data being used for chart
+        new Chart(id, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: label,
+                    data: data.data,
+                    backgroundColor: 'rgba(173, 216, 108, 0.5)', 
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: options
+        });
+    }
+    </script>
+
+    
+    
+    
+</body>
+</html>
